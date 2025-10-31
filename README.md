@@ -1,6 +1,7 @@
 # 📚 Flashcards
 
 An interactive web-based flashcard application for studying and learning.
+<img width="1920" height="944" alt="flashcards-main-page" src="https://github.com/user-attachments/assets/acbcbfd3-4373-49f3-9461-bf3684978e0c" />
 
 ## Features
 
@@ -20,6 +21,7 @@ An interactive web-based flashcard application for studying and learning.
 4. Choose card order (Sequential or Random)
 5. Click the card to flip or use spacebar
 6. Use arrow keys or Previous/Next buttons to navigate
+<img width="1920" height="944" alt="how-to-use" src="https://github.com/user-attachments/assets/aa4d9b68-e7d7-46f2-a6bd-6cec1a8e9f22" />
 
 ## Example Import Format
 ```
