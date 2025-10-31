@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flashcards</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+            max-width: 600px;
+            width: 100%;
+            padding: 30px;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .section {
+            margin-bottom: 30px;
+        }
+
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #667eea;
+            margin-bottom: 15px;
+            border-bottom: 2px solid #667eea;
+            padding-bottom: 8px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-family: monospace;
+            font-size: 14px;
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: #667eea;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-secondary:hover {
+            background: #e0e0e0;
+        }
+
+        .btn-danger {
+            background: #ff6b6b;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ee5a52;
+        }
+
+        .info-box {
+            background: #f0f4ff;
+            border-left: 4px solid #667eea;
+            padding: 12px;
+            border-radius: 5px;
+            font-size: 14px;
+            color: #333;
+            margin-bottom: 15px;
+        }
+
+        .card-count {
+            text-align: center;
+            font-size: 16px;
+            color: #666;
+            margin: 20px 0;
+        }
+
+        .card-count strong {
+            color: #667eea;
+            font-size: 18px;
+        }
+
+        .flashcard-container {
+            perspective: 1000px;
+            height: 300px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 20px 0;
+        }
+
+        .flashcard {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            cursor: pointer;
+            transform-style: preserve-3d;
+            transition: transform 0.6s;
+        }
+
+        .flashcard.flipped {
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-front, .flashcard-back {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            backface-visibility: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 30px;
+            text-align: center;
+            border-radius: 10px;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .flashcard-front {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .flashcard-back {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            transform: rotateY(180deg);
+        }
+
+        .flashcard-label {
+            font-size: 12px;
+            opacity: 0.8;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .flashcard-content {
+            font-size: 28px;
+            font-weight: 600;
+            word-wrap: break-word;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 20px;
+        }
+
+        .controls button {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #e0e0e0;
+            border-radius: 10px;
+            margin: 15px 0;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+
+        .card-list {
+            max-height: 300px;
+            overflow-y: auto;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+        }
+
+        .card-item {
+            padding: 10px;
+            border-bottom: 1px solid #eee;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .card-item:last-child {
+            border-bottom: none;
+        }
+
+        .card-item-text {
+            flex: 1;
+        }
+
+        .card-item-word {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .card-item-def {
+            font-size: 12px;
+            color: #999;
+            margin-top: 3px;
+        }
+
+        .delete-btn {
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            padding: 4px 8px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .delete-btn:hover {
+            background: #ee5a52;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .order-controls {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .order-controls label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .order-controls select {
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+            cursor: pointer;
+            background: white;
+        }
+
+        .order-controls select:hover {
+            border-color: #667eea;
+        }
+
+        #shuffleBtn {
+            padding: 8px 16px;
+            font-size: 13px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📚 Flashcards</h1>
+
+        <!-- Import Section -->
+        <div class="section">
+            <div class="section-title">Import Cards</div>
+            <div class="info-box">
+                Format: Enter one card per line with word and definition separated by any of these: | (pipe), — (em dash), - (hyphen), : (colon), ; (semicolon), or Tab<br>
+                Examples: <code>apple|a red fruit</code> or <code>apple—a red fruit</code> or <code>apple - a red fruit</code>
+            </div>
+            <textarea id="importArea" placeholder="word|definition&#10;word|definition&#10;..."></textarea>
+            <div class="button-group">
+                <button class="btn-primary" onclick="importCards()">Import Cards</button>
+                <button class="btn-secondary" onclick="clearImport()">Clear</button>
+            </div>
+        </div>
+
+        <!-- Study Section -->
+        <div class="section" id="studySection" class="hidden">
+            <div class="section-title">Study Cards</div>
+            
+            <div class="order-controls">
+                <label for="orderMode">Card Order:</label>
+                <select id="orderMode" onchange="changeOrder()">
+                    <option value="sequential">Sequential (as imported)</option>
+                    <option value="random">Random</option>
+                </select>
+                <button class="btn-secondary" onclick="shuffleCards()" id="shuffleBtn">🔀 Shuffle Now</button>
+            </div>
+            
+            <div class="card-count">
+                Card <strong id="currentCard">1</strong> of <strong id="totalCards">0</strong>
+            </div>
+
+            <div class="progress-bar">
+                <div class="progress-fill" id="progressFill"></div>
+            </div>
+
+            <div class="flashcard-container">
+                <div class="flashcard" id="flashcard" onclick="toggleFlip()">
+                    <div class="flashcard-front">
+                        <div class="flashcard-label">Word</div>
+                        <div class="flashcard-content" id="front">Click to see definition</div>
+                    </div>
+                    <div class="flashcard-back">
+                        <div class="flashcard-label">Definition</div>
+                        <div class="flashcard-content" id="back">Definition appears here</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="controls">
+                <button class="btn-secondary" onclick="previousCard()">← Previous</button>
+                <button class="btn-primary" onclick="resetCards()">Restart</button>
+                <button class="btn-secondary" onclick="nextCard()">Next →</button>
+            </div>
+        </div>
+
+        <!-- Cards List Section -->
+        <div class="section" id="cardsListSection" class="hidden">
+            <div class="section-title">Your Cards</div>
+            <div class="card-list" id="cardsList"></div>
+            <div class="button-group" style="margin-top: 15px;">
+                <button class="btn-danger" onclick="deleteAllCards()">Delete All Cards</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let cards = [];
+        let originalCards = [];
+        let currentCardIndex = 0;
+        let isFlipped = false;
+        let isRandomMode = false;
+
+        function detectSeparator(text) {
+            const separators = ['|', '—', '-', ':', ';', '\t'];
+            const lines = text.split('\n').filter(line => line.trim());
+            if (lines.length === 0) return null;
+            
+            const firstLine = lines[0];
+            for (const sep of separators) {
+                if (firstLine.includes(sep)) {
+                    const parts = firstLine.split(sep);
+                    if (parts.length >= 2) {
+                        return sep;
+                    }
+                }
+            }
+            return null;
+        }
+
+        function shuffleArray(array) {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        }
+
+        function shuffleCards() {
+            if (cards.length === 0) return;
+            
+            if (isRandomMode) {
+                cards = shuffleArray(originalCards);
+            } else {
+                cards = shuffleArray(cards);
+            }
+            
+            currentCardIndex = 0;
+            displayCard();
+            updateProgress();
+        }
+
+        function changeOrder() {
+            const orderMode = document.getElementById('orderMode').value;
+            isRandomMode = orderMode === 'random';
+            
+            if (isRandomMode) {
+                cards = shuffleArray(originalCards);
+            } else {
+                cards = [...originalCards];
+            }
+            
+            currentCardIndex = 0;
+            displayCard();
+            updateProgress();
+        }
+
+        function importCards() {
+            const text = document.getElementById('importArea').value.trim();
+            
+            if (!text) {
+                alert('Please enter some cards in the format: word|definition or word—definition, etc.');
+                return;
+            }
+
+            const separator = detectSeparator(text);
+            
+            if (!separator) {
+                alert('Could not detect a valid separator. Please use one of: | — - : ; or Tab');
+                return;
+            }
+
+            const lines = text.split('\n');
+            const newCards = [];
+
+            lines.forEach(line => {
+                const parts = line.split(separator).slice(0, 2).map(p => p.trim());
+                if (parts.length === 2 && parts[0] && parts[1]) {
+                    newCards.push({
+                        word: parts[0],
+                        definition: parts[1]
+                    });
+                }
+            });
+
+            if (newCards.length === 0) {
+                alert('No valid cards found. Make sure each line has format: word' + separator + 'definition');
+                return;
+            }
+
+            cards = newCards;
+            originalCards = [...newCards];
+            currentCardIndex = 0;
+            isFlipped = false;
+            isRandomMode = false;
+            
+            document.getElementById('orderMode').value = 'sequential';
+            document.getElementById('importArea').value = '';
+            showStudySection();
+            displayCard();
+            updateProgress();
+        }
+
+        function showStudySection() {
+            document.getElementById('studySection').classList.remove('hidden');
+            document.getElementById('cardsListSection').classList.remove('hidden');
+            displayCardsList();
+        }
+
+        function displayCard() {
+            if (cards.length === 0) return;
+
+            const card = cards[currentCardIndex];
+            document.getElementById('front').textContent = card.word;
+            document.getElementById('back').textContent = card.definition;
+            document.getElementById('currentCard').textContent = currentCardIndex + 1;
+            document.getElementById('totalCards').textContent = cards.length;
+
+            const flashcard = document.getElementById('flashcard');
+            flashcard.classList.remove('flipped');
+            isFlipped = false;
+
+            updateProgress();
+        }
+
+        function toggleFlip() {
+            const flashcard = document.getElementById('flashcard');
+            flashcard.classList.toggle('flipped');
+            isFlipped = !isFlipped;
+        }
+
+        function nextCard() {
+            if (currentCardIndex < cards.length - 1) {
+                currentCardIndex++;
+                displayCard();
+            }
+        }
+
+        function previousCard() {
+            if (currentCardIndex > 0) {
+                currentCardIndex--;
+                displayCard();
+            }
+        }
+
+        function resetCards() {
+            currentCardIndex = 0;
+            displayCard();
+        }
+
+        function updateProgress() {
+            const progress = ((currentCardIndex + 1) / cards.length) * 100;
+            document.getElementById('progressFill').style.width = progress + '%';
+        }
+
+        function displayCardsList() {
+            const list = document.getElementById('cardsList');
+            list.innerHTML = '';
+
+            cards.forEach((card, index) => {
+                const item = document.createElement('div');
+                item.className = 'card-item';
+                item.innerHTML = `
+                    <div class="card-item-text">
+                        <div class="card-item-word">${escapeHtml(card.word)}</div>
+                        <div class="card-item-def">${escapeHtml(card.definition)}</div>
+                    </div>
+                    <button class="delete-btn" onclick="deleteCard(${index})">Delete</button>
+                `;
+                list.appendChild(item);
+            });
+        }
+
+        function deleteCard(index) {
+            cards.splice(index, 1);
+            originalCards.splice(index, 1);
+            if (cards.length === 0) {
+                document.getElementById('studySection').classList.add('hidden');
+                document.getElementById('cardsListSection').classList.add('hidden');
+            } else {
+                if (currentCardIndex >= cards.length) {
+                    currentCardIndex = cards.length - 1;
+                }
+                displayCard();
+                displayCardsList();
+            }
+        }
+
+        function deleteAllCards() {
+            if (confirm('Are you sure you want to delete all cards?')) {
+                cards = [];
+                originalCards = [];
+                currentCardIndex = 0;
+                document.getElementById('studySection').classList.add('hidden');
+                document.getElementById('cardsListSection').classList.add('hidden');
+                document.getElementById('cardsList').innerHTML = '';
+                document.getElementById('importArea').value = '';
+                alert('All cards have been deleted.');
+            }
+        }
+
+        function clearImport() {
+            document.getElementById('importArea').value = '';
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, m => map[m]);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (cards.length === 0) return;
+            if (e.key === 'ArrowLeft') previousCard();
+            if (e.key === 'ArrowRight') nextCard();
+            if (e.key === ' ') {
+                e.preventDefault();
+                toggleFlip();
+            }
+        });
+    </script>
+</body>
+</html>
